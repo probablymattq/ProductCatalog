@@ -1,138 +1,93 @@
 <?php
 session_start();
 
-function getTotal()
+STATIC $servername = "localhost";
+STATIC $username = "root";
+STATIC $password = "";
+STATIC $dbname = "catalog";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+function connection()
 {
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "catalog";
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    return $GLOBALS['conn'];
+}
 
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
+function calcPrice()
+{
+    $sql = "SELECT total FROM cart";
+    $result = connection()->query($sql);
+    $total = 0;
 
+    if ($result->num_rows > 0)
+        while ($row = $result->fetch_assoc())
+            $total += $row["total"];
+
+    return $total;
+}
+
+function getProdsNumber()
+{
     $sql = "SELECT name, quantity, price, total FROM cart";
-    $result = $conn->query($sql);
+    $result = connection()->query($sql);
+    $total = 0;
 
-    if ($result === false) {
-        echo "Error executing query: " . $conn->error;
-    } else {
-        if ($result->num_rows > 0) {
-            $total = 0;
-            while ($row = $result->fetch_assoc()) {
-                $total++;
-            }
-            return $total;
-        } else {
-            return 0;
-        }
-    }
-    $conn->close();
+    if ($result->num_rows > 0) {
+        while ($result->fetch_assoc())
+            $total++;
+
+        return $total;
+    } else return 0;
 }
 
 function displayCart()
 {
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "catalog";
-    $conn = new mysqli($servername, $username, $password, $dbname);
-
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
     $sql = "SELECT id, name, quantity, price, total FROM cart";
-    $result = $conn->query($sql);
+    $result = connection()->query($sql);
 
-    if ($result === false) {
-        echo "Error executing query: " . $conn->error;
-    } else {
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td style='text-align:left'>" . $row["name"] . "</td>";
-                echo "<td style='text-align:left'>" .
-                    $row["quantity"] .
-                    "</td>";
-                echo "<td style='text-align:right'>$ " .
-                    number_format($row["price"], 2) .
-                    "</td>";
-                echo "<td style='text-align:right'>$ " .
-                    number_format($row["total"], 2) .
-                    "</td>";
-                echo "<td style='text-align:center'><a href='index.php?id=" .
-                    $row["id"] .
-                    "' class='remove-btn'>Remove</a>";
-                echo "</tr>";
-            }
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
             echo "<tr>";
-            echo "<td colspan='3' style='text-align:right'>Total</td>";
-            echo "<td>$ " . number_format(getTotalPrice(), 2) . "</td>";
+            echo "<td style='text-align:left'>" . $row["name"] . "</td>";
+            echo "<td style='text-align:left'>" . $row["quantity"] . "</td>";
+            echo "<td style='text-align:right'>$ " . number_format($row["price"], 2) . "</td>";
+            echo "<td style='text-align:right'>$ " . number_format($row["total"], 2) . "</td>";
+            echo "<td style='text-align:center'><a href='index.php?id=" . $row["id"] . "' class='remove-btn'>Remove</a>";
             echo "</tr>";
         }
+
+        echo "<tr>";
+        echo "<td colspan='3' style='text-align:right'>Total</td>";
+        echo "<td>$ " . number_format(calcPrice(), 2) . "</td>";
+        echo "</tr>";
     }
-    $conn->close();
 }
 
-if (isset($_GET["id"])) {
-    removeData($_GET["id"]);
-}
-
-function removeData($id)
+function deleteFromCart($id)
 {
-    //make a function to remove data from table
-    $servername = "localhost";
-
-    $username = "root";
-
-    $password = "";
-
-    $dbname = "catalog";
-
-    $conn = new mysqli($servername, $username, $password, $dbname);
-
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
     $sql = "DELETE FROM cart WHERE id = '$id'";
+    connection()->query($sql);
 
-    $conn->query($sql);
-
-    $conn->close();
+    header("Location: index.php");
+    exit();
 }
 
-function insertData($product, $price, $quantity)
+function insertIntoCart($product, $price, $quantity)
 {
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "catalog";
-
-    $conn = new mysqli($servername, $username, $password, $dbname);
-
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    $price = explode("$ ", strval($price))[1];
+    $price = intval(explode("$ ", strval($price))[1]);
     $total = intval($price) * intval($quantity);
 
-    $maxId = "SELECT MAX(id) FROM cart";
-    $maxId = $conn->query($maxId);
-    $maxId = $maxId->fetch_assoc();
+    $currID = connection()->query("SELECT MAX(id) FROM cart");
+    $currID = $currID->fetch_assoc();
 
-    if ($maxId["MAX(id)"] == null) {
-        $maxId["MAX(id)"] = 0;
-    }
-    $id = $maxId["MAX(id)"] + 1;
+    if ($currID["MAX(id)"] == null) $currID["MAX(id)"] = 0;
+    else $id = $currID["MAX(id)"] + 1;
+
     $sql = "INSERT INTO cart (id, name, quantity, price, total) VALUES ('$id', '$product', '$quantity', '$price', '$total')";
-
-    $conn->query($sql);
-    $conn->close();
+    connection()->query($sql);
 }
 
 if (isset($_POST["submit"])) {
@@ -140,36 +95,10 @@ if (isset($_POST["submit"])) {
     $price = $_POST["price"];
     $quantity = $_POST["quantity"];
 
-    insertData($product, $price, $quantity);
+    insertIntoCart($product, $price, $quantity);
 }
 
-function getTotalPrice()
-{
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "catalog";
-
-    $conn = new mysqli($servername, $username, $password, $dbname);
-
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    $sql = "SELECT total FROM cart";
-
-    $result = $conn->query($sql);
-
-    $total = 0;
-
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $total += $row["total"];
-        }
-    }
-
-    $conn->close();
-
-    return $total;
+if (isset($_GET["id"])) {
+    deleteFromCart($_GET["id"]);
 }
-?>     ?>
+?>
