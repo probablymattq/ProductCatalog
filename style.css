@@ -1,0 +1,136 @@
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.catalog {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-gap: 20px;
+}
+
+input.product-name {
+    margin-top: 10px;
+    background-color: transparent;
+    border: none;
+    color: rgb(7, 90, 138);
+    font-weight: lighter;
+    margin-bottom: -10px;
+    font-family: 'Roboto', sans-serif;
+    border: none;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+}
+
+input.price {
+    margin-top: 10px;
+    background-color: transparent;
+    border: none;
+    color:rgb(170, 13, 13);
+    font-weight: lighter;
+    margin-bottom: -10px;
+    font-family: 'Roboto', sans-serif;
+    border: none;
+    font-size: 13px;
+    text-align: center;
+}
+
+.product-image {
+    width: 150px;
+    height: 200px;
+    object-fit: contain;
+}
+
+.catalog .item {
+    border: 1px solid #ddd;
+    padding: 20px;
+    text-align: center;
+}
+
+.cart {
+    margin-top: 50px;
+}
+
+.cart table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart table th,
+.cart table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.cart table th {
+    background-color: #f5f5f5;
+}
+
+.cart table td:last-child {
+    text-align: right;
+}
+
+.cart table td button {
+    padding: 5px 10px;
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.cart table td button:hover {
+    background-color: #d32f2f;
+}
+
+.cart-total {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: #5d5d5d;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    line-height: 24px;
+}
+
+input.quantity {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    width: 200px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+
+input[type="submit"] {
+    padding: 5px 10px;
+    background-color: orange;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 220px;
+    border-radius: 5px;
+}
+
+.remove-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 80px;
+    text-align: center;
+    margin: -20px;
+}
+
+a {
+    text-decoration: none;
+}
+  
